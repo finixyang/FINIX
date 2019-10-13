@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var keyValue = $.request("keyValue");
+    var flowId = $.request("flowId");
+    var financialFlowId = $.request("financialFlowId");
+    $(function () {
+        initControl();
+        $.ajax({
+            url: "/ProjectManage/Financial/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+                var selectOption = $("#P_ProductId").children('option:selected');
+                $("#P_DrawingNoOrModelNo").val(selectOption.attr("draw"));
+            }
+        });
+    });
+    function initControl() {
+        $("#F_EnabledMark").bindSelect()
+        $("#F_LastModifyUserId").bindSelect({
+            url: "/FlowManage/Financial/GetGroupUserJson?keyValue=" + flowId
+        });
+        $("#P_FinancialStatus").bindSelect({
+            url: "/ProjectManage/Financial/GetFinancialFlowJson"
+        });
+        $("#P_FinancialStatus_next").bindSelect({
+            url: "/FlowManage/Financial/GetNextFinancialFlowJson?keyValue=" + flowId
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/FlowManage/Financial/SubmitForm?keyValue=" + keyValue + "&flowId=" + flowId + "&financialFlowId=" + financialFlowId,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">项目描述</th>
+                    <td class="formValue">
+                         <textarea id="P_Description" name="P_Description" class="form-control" style="height: 80px;" readonly="readonly"></textarea>
+                    </td>
+                    <th class="formTitle">项目金额</th>
+                    <td class="formValue">
+                        <input id="P_TotalAmount" name="P_TotalAmount" type="text" class="form-control required" placeholder="请输入项目金额" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目类型</th>
+                    <td class="formValue">
+                        <select id="P_FinancialType" name="P_FinancialType" class="form-control" disabled="disabled">
+                            <option value="B">报销</option>
+                            <option value="H">入账</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">申请状态</th>
+                    <td class="formValue">
+                        <select id="P_FinancialStatus" name="P_FinancialStatus" class="form-control" disabled="disabled">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                </tr>             
+                <tr>
+                    <th class="formTitle">下一流程</th>
+                    <td class="formValue">
+                        <select id="P_FinancialStatus_next" name="P_FinancialStatus_next" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">下一执行人</th>
+                    <td class="formValue">
+                        <select id="F_LastModifyUserId" name="F_LastModifyUserId" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

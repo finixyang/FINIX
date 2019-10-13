@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<canvas id="myCanvas" width="1200" height="800" style="border: solid 1px;"></canvas>
+<script src="~/Content/js/flow/step.js"></script>
+<script src="~/Content/js/flow/arrow.js"></script>
+<script charset="UTF-8">
+    var keyValue = $.request("keyValue");
+    var canvas = document.getElementById("myCanvas");
+    var cxt = canvas.getContext('2d');
+    $(function () {
+        $.ajax({
+            url: "/FlowManage/Order/GetFlowInfos",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                createFlow(data);
+            }
+        });
+
+    });
+    function createFlow(res) {
+        var start, step;
+        var startX = 40;
+        
+        for (var key in res) {
+            var flow = res[key];
+            var color = "#CCC";
+            if (flow.status == 0) {
+                color = "Green";
+            }
+            if (flow.status == 1) {
+                color = "Red";
+            }
+            if (key == 1) {
+                start = new Start(300, startX, color, flow.name);
+                drawText(start, flow);
+                debugger;
+            }
+            if (key > 1) {
+                startX += 80;
+                var step = new Step(300, startX, color, flow.name);
+                drawText(step, flow);
+                start.drawBottomToTop(step);
+                start = step;
+            }
+        }
+    }
+
+    function drawText(cas, item) {
+        if (item.creator) {
+            cxt.fillText("提交人：" + item.creator, cas.x + cas.w + 10, cas.y - 10);
+            cxt.fillText("数量：" + item.orderCount, cas.x + cas.w + 10, cas.y + 10);
+        }
+    }
+</script>

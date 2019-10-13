@@ -1,0 +1,417 @@
+﻿
+@{
+    ViewBag.Title = "IndexPage";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    table > tr {
+        cursor: pointer;
+    }
+
+    .item-hight {
+        line-height: 30px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .item-center {
+        text-align: center;
+    }
+
+    .span-width {
+        width: 50px;
+        text-align: center;
+        cursor: none;
+    }
+
+    tr.focus {
+        background-color: #eee;
+    }
+</style>
+<script>
+    $(function () {
+        gridList();
+        $("span[class='close']").click(function () {
+            $(".operate").eq(0).attr("style", "left:-100%");
+        });
+        $("table>tr[class='item-hight']").on("click", function () {
+            $(this).parent().find("tr.focus").toggleClass("focus");//取消原先选中行
+            $(this).toggleClass("focus");//设定当前行为选中行
+        });
+    });
+    
+    function btn_add_c() {
+        $.modalOpen({
+            id: "Form",
+            title: "添加类型",
+            url: "/AssetsManage/Consumable/CreateP?keyValue=" + keyValue,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                $.currentWindow().$("#refreshdata").click();
+            }
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增消耗品",
+            url: "/AssetsManage/Consumable/Create",
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                $.currentWindow().$("#refreshdata").click();
+            }
+        });
+    }
+    function btn_edit_c() {
+        if (!itemchildid || itemchildid.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: "修改消耗品",
+            url: "/AssetsManage/Consumable/Form?keyValue=" + itemchildid,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                $.currentWindow().$("#refreshdata").click();
+            }
+        });
+    }
+    function btn_delete() {
+        $.deleteForm({
+            url: "/AssetsManage/Consumable/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#refreshdata").click();
+            }
+        })
+    }
+    function btn_delete_c() {
+        if (!itemchildid || itemchildid.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        $.deleteForm({
+            url: "/AssetsManage/Consumable/DeleteForm",
+            param: { keyValue: itemchildid },
+            success: function () {
+                $.currentWindow().$("#refreshdata").click();
+            }
+        })
+    }
+    function btn_details_c() {
+        if (!itemchildid || itemchildid.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        $.modalOpen({
+            id: "Details",
+            title: "查看消耗品",
+            url: "/AssetsManage/Consumable/Details?keyValue=" + itemchildid,
+            width: "700px",
+            height: "550px",
+            btn: null,
+        });
+    }
+    function btn_borrow() {
+        if (!itemchildid || itemchildid.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        var flag = "Consumable";
+        $.modalOpen({
+            id: "Form",
+            title: "消耗品领用",
+            url: "/AssetsManage/Recipient/Create?keyValue=" + itemchildid + "&flag=" + flag,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                $.currentWindow().$("#refreshdata").click();
+            }
+        });
+    }
+
+    function gridList() {
+        //createTable(null);
+        $.ajax({
+            url: "/AssetsManage/Consumable/GetTreeData",
+            data: { keyValue: "" },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                createTable(data);
+            }
+        });
+    }
+    var keyValue = '';
+    function ShowChildAndBtn(id, obj) {
+        keyValue = id;
+        var display = this.nextElementSibling.style.display;
+        var childTable = $(this.nextElementSibling).find("td table");
+        if (childTable.length > 0) {
+            this.nextElementSibling.style.display = display ? "" : "none";
+        }
+        $(".operate").eq(0).attr("style", "left:0");
+        $(".item-btn").hide();
+    }
+    var itemchildid = '';
+    function ShowBtn(id, obj) {
+        itemchildid = id;
+        $(".item-btn").show();
+    }
+
+    function createTable(data) {
+        var cols = [
+            { label: '主键', name: 'F_Id', className: "" },
+            { label: '', name: 'NO', className: "item-center" },            
+            { label: '消耗品类别', name: 'P_TypeId', className: "" },
+            { label: '总数量', name: 'P_AssetToaltNum', className: "item-center" },
+            { label: '总金额', name: 'P_AssetAmount', className: "item-center" },
+            
+        ];
+        //创建表格
+        //创建对象
+        //window下面的属性方法可以把window去掉或者写上
+        var table = window.document.createElement("table");
+        var thead = window.document.createElement("thead");
+        var tr = document.createElement("tr");
+        for (var i = 0; i < cols.length; i++) {
+            var td = document.createElement("td");
+            td.setAttribute("name", cols[i].name);
+            var txt = document.createTextNode(cols[i].label);
+            //把表格添加到body里去
+            td.appendChild(txt);
+            if (i == 0) {
+                td.setAttribute("style", "display:none");
+            }
+            if (i == 1) {
+                td.setAttribute("style", "width:50px");
+            }
+            td.setAttribute("class", cols[i].className);
+            tr.appendChild(td);
+        }
+        tr.setAttribute("style", "text-align: left;line-height: 30px;border-bottom:#ddd 1px solid;background: #e8e8e8;");
+        thead.appendChild(tr);
+        table.appendChild(thead);
+        var tbody = window.document.createElement("tbody");
+        if (data == null) {//无数据表格样式
+            var tr1 = document.createElement("tr");
+            var td2 = document.createElement("td");
+            td2.setAttribute("colspan", cols.length);
+            var div = document.createElement("div");
+            div.setAttribute("style", "color:red;padding:7px;");
+            var txt1 = document.createTextNode("没有找到您要的相关数据!");
+            div.appendChild(txt1);
+            td2.appendChild(div);
+            tr1.appendChild(td2);
+            tbody.appendChild(tr1);
+            table.appendChild(tbody);
+        } else {
+            var childCol = [
+                { label: '主键', name: 'F_Id', className: "" },
+                { label: '', name: 'NO', className: "item-center" },
+                { label: '消耗品名称', name: 'P_AssetName', className: "" },
+                { label: '型号', name: 'P_AssetModel', className: "" },
+                { label: '购买日期', name: 'F_CreatorTime', className: "" },
+                { label: '付款方式', name: 'P_PayType', className: "" },
+                { label: '购买数量', name: 'P_AssetNumber', className: "item-center" },
+                { label: '剩余数量', name: 'P_RemNum', className: "item-center" },
+                { label: '购买价格', name: 'P_AssetPrice', className: "item-center" },
+                { label: '总金额', name: 'P_AssetAmount', className: "item-center" },
+                { label: '采购人', name: 'P_Owner', className: "" },
+                { label: '创建人', name: 'F_CreatorUserId', className: "" },
+                { label: '备注', name: 'F_Description', className: "" }
+            ];
+            var userInfo = top.clients.user;
+            var consumable = top.clients.consumable;
+            for (var i = 0; i < data.length; i++) {
+                var itemData = data[i];
+                var itemTr = document.createElement("tr");
+                for (var j = 0; j < cols.length; j++) {
+                    var itemTd = document.createElement("td");
+                    itemTd.setAttribute("name", cols[j].name);
+                    if (j == 1) {
+                        var itemTxt = document.createTextNode((i + 1));
+                        itemTd.appendChild(itemTxt);
+                    } else {
+                        var txt = "";
+                        switch (cols[j].name) {
+                            case "F_CreatorUserId":
+                                txt = getTransferInfo(userInfo, itemData["F_CreatorUserId"], "userName") || "";
+                                break;
+                            case "P_TypeId":
+                                txt = getTransferInfo(consumable, itemData["P_TypeId"], "itemName") || "";
+                                break;
+                            default:
+                                txt = itemData[cols[j].name] || "";
+                                break;
+                        }
+                        itemTxt = document.createTextNode(txt);
+                        itemTd.appendChild(itemTxt);
+                    }
+                    if (j == 0) {
+                        itemTd.setAttribute("style", "display:none");
+                    }
+                    itemTd.setAttribute("class", cols[j].className);
+                    itemTr.appendChild(itemTd);
+                }
+                itemTr.setAttribute("class", "item-hight");
+                var itemId = itemData["F_Id"];
+                itemTr.addEventListener("click", ShowChildAndBtn.bind(itemTr, itemId), false);
+                tbody.appendChild(itemTr);
+                table.appendChild(tbody);
+                if (itemData.childList) {
+                    var childTable = document.createElement("table");
+                    var childTr = document.createElement("tr");
+                    var childTd = document.createElement("td")
+                    childTd.setAttribute("colspan", cols.length);
+                    var ctr = document.createElement("tr");
+                    for (var j = 0; j < childCol.length; j++) {
+                        var ctd = document.createElement("td");
+                        ctd.setAttribute("name", childCol[j].name);
+                        var ctxt = document.createTextNode(childCol[j].label);
+                        ctd.appendChild(ctxt);
+                        if (j == 0) {
+                            ctd.setAttribute("style", "display:none");
+                        }
+                        if (j == 1) {
+                            ctd.setAttribute("style", "width:50px");
+                        }
+                        ctd.setAttribute("class", childCol[j].className);
+                        ctr.appendChild(ctd);
+                    }
+                    ctr.setAttribute("style", "text-align: left;line-height: 30px;border-bottom:#ddd 1px solid;background: #e8e8e8;");
+                    childTable.appendChild(ctr);
+                    var childList = itemData.childList;
+                    for (var m = 0; m < childList.length; m++) {
+                        var childItem = childList[m];
+                        var childTh = document.createElement("tr");
+                        for (var n = 0; n < childCol.length; n++) {
+                            var ptd = document.createElement("td");
+                            ptd.setAttribute("name", childCol[n].name);
+                            if (n == 0) {
+                                ptd.setAttribute("style", "display:none");
+                            }
+                            if (n == 1) {
+                                var ptxt = document.createTextNode((m + 1));
+                                ptd.appendChild(ptxt);
+                                if (parseInt(childItem['P_RemNum']) < 2) {
+                                    ptd.setAttribute("style", "background: yellow;");
+                                }
+                            } else {
+                                //itemTxt = document.createTextNode(txt);
+                                //itemTd.appendChild(itemTxt);
+                                var cla = "";
+                                switch (childCol[n].name) {
+                                    case "F_CreatorUserId":
+                                        cla = getTransferInfo(userInfo, childItem["F_CreatorUserId"], "userName") || "";
+                                        break;
+                                    case "P_Owner":
+                                        cla = getTransferInfo(userInfo, childItem["P_Owner"], "userName") || "";
+                                        break;
+                                    case "P_PayType":
+                                        cla = childItem[childCol[n].name] == 1 ? "现金" : "记账";
+                                        break;
+                                    default:
+                                        cla = childItem[childCol[n].name] || "";
+                                        break;
+                                }
+                                //cla = childItem[childCol[n].name] || "";
+                                var ptxt = document.createTextNode(cla);
+                                ptd.appendChild(ptxt);
+                            }
+                            ptd.setAttribute("class", childCol[n].className);
+                            childTh.appendChild(ptd);
+                        }
+
+                        childTh.setAttribute("class", "item-hight");
+                        var childId = childItem["F_Id"];
+                        childTh.addEventListener("click", ShowBtn.bind(childTh, childId), false);
+                        childTable.appendChild(childTh);
+                    }
+                    childTable.setAttribute("style", "width:80%;margin-left: 50px;border-left: #ddd 1px solid;border-right: #ddd 1px solid;background: #f7f1f1;");
+                    childTd.appendChild(childTable);
+                    childTr.appendChild(childTd);
+                    childTr.setAttribute("class", "item-hight");
+                    childTr.setAttribute("style", "display:none;");
+                    tbody.appendChild(childTr);
+                    table.appendChild(tbody);
+                } else {
+                    var childTr = document.createElement("tr");
+                    var childTd = document.createElement("td");
+                    childTd.setAttribute("colspan", childCol.length);
+                    var divchild = document.createElement("div");
+                    divchild.setAttribute("style", "color:red;padding:7px;");
+                    var txtchild = document.createTextNode("没有找到您要的相关数据!");
+                    divchild.appendChild(txtchild);
+                    childTd.appendChild(divchild);
+                    childTr.appendChild(childTd);
+                    tbody.appendChild(childTr);
+                    table.appendChild(tbody);
+                }
+            }
+        }
+        table.setAttribute("border", "0");
+        table.setAttribute("style", "width:100%");
+
+        document.getElementById("list_info").appendChild(table);
+    }
+
+    function getTransferInfo(transferInfo, id, key) {
+        return id ? transferInfo[id][key] : "";
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" id="refreshdata" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="yf-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建类别</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="yf-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除类别</a></li>
+                <li><a id="yf-add-c" authorize="yes" onclick="btn_add_c()"><i class="fa fa-search-plus"></i>添加消耗品</a></li>
+                <li class="item-btn span-width"><a>|</a></li>
+                <li class="item-btn"><a id="yf-edit-c" authorize="yes" onclick="btn_edit_c()"><i class="fa fa-pencil-square-o"></i>修改消耗品</a></li>
+                <li class="item-btn"><a id="yf-delete-c" authorize="yes" onclick="btn_delete_c()"><i class="fa fa-trash-o"></i>删除消耗品</a></li>
+                <li class="item-btn"><a id="yf-Details-c" authorize="yes" onclick="btn_details_c()"><i class="fa fa-search-plus"></i>查看消耗品</a></li>
+                <li class="item-btn"><a id="yf-borrow" authorize="yes" onclick="btn_borrow()"><i class="fa fa-search-plus"></i>消耗品领用</a></li>
+            </ul>
+            <span class="close"></span>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="请输入要查询关键字" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div id="list_info" style="border: #ddd 1px solid;z-index:2;overflow-y: scroll;height:90%">
+</div>
+
+

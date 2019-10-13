@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7DC886CD-B8A0-44E8-AADD-57FCB0CFECB8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Finix.Domain</RootNamespace>
+    <AssemblyName>Finix.Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entity\Project\BenefitsEntity.cs" />
+    <Compile Include="Entity\Project\ConsumableList.cs" />
+    <Compile Include="Entity\Project\ConsumableEntity.cs" />
+    <Compile Include="Entity\Project\CustomerEntity.cs" />
+    <Compile Include="Entity\Project\FinancialEntity.cs" />
+    <Compile Include="Entity\Project\FinancialFlowEntity.cs" />
+    <Compile Include="Entity\Project\FixedassetsEntity.cs" />
+    <Compile Include="Entity\Project\OrderEntity.cs" />
+    <Compile Include="Entity\Project\OrderFlowEntity.cs" />
+    <Compile Include="Entity\Project\FinancialFlowModel.cs" />
+    <Compile Include="Entity\Project\OrderFlowModel.cs" />
+    <Compile Include="Entity\Project\OrderInspectionEntity.cs" />
+    <Compile Include="Entity\Project\OrderpaymentEntity.cs" />
+    <Compile Include="Entity\Project\OrderPaymentModel.cs" />
+    <Compile Include="Entity\Project\OrderProductEditModel.cs" />
+    <Compile Include="Entity\Project\OrderProductEntity.cs" />
+    <Compile Include="Entity\Project\OrderProductModel.cs" />
+    <Compile Include="Entity\Project\ProductEntity.cs" />
+    <Compile Include="Entity\Project\RecipientEntity.cs" />
+    <Compile Include="Entity\Project\RecipientModel.cs" />
+    <Compile Include="Entity\Project\ReimbursementEntity.cs" />
+    <Compile Include="Infrastructure\Common\ICreationAudited.cs" />
+    <Compile Include="Infrastructure\Common\IDeleteAudited.cs" />
+    <Compile Include="Infrastructure\Common\IEntity.cs" />
+    <Compile Include="Infrastructure\Common\IModificationAudited.cs" />
+    <Compile Include="Entity\SystemManage\AreaEntity.cs" />
+    <Compile Include="Entity\SystemManage\ModuleButtonEntity.cs" />
+    <Compile Include="Entity\SystemManage\ModuleEntity.cs" />
+    <Compile Include="Entity\SystemManage\RoleAuthorizeEntity.cs" />
+    <Compile Include="Entity\SystemManage\UserLogOnEntity.cs" />
+    <Compile Include="Entity\SystemManage\ItemsDetailEntity.cs" />
+    <Compile Include="Entity\SystemSecurity\DbBackupEntity.cs" />
+    <Compile Include="Entity\SystemSecurity\FilterIPEntity.cs" />
+    <Compile Include="Entity\SystemSecurity\LogEntity.cs" />
+    <Compile Include="IRepository\Project\IBenefitsRepository.cs" />
+    <Compile Include="IRepository\Project\IConsumableRepository.cs" />
+    <Compile Include="IRepository\Project\ICustomerRepository.cs" />
+    <Compile Include="IRepository\Project\IFinancialRepository.cs" />
+    <Compile Include="IRepository\Project\IFinancialFlowRepository.cs" />
+    <Compile Include="IRepository\Project\IFixedassetsRepository.cs" />
+    <Compile Include="IRepository\Project\IOrderFlowRepository.cs" />
+    <Compile Include="IRepository\Project\IOrderInspectionRepository.cs" />
+    <Compile Include="IRepository\Project\IOrderpaymentRepository.cs" />
+    <Compile Include="IRepository\Project\IOrderProductRepository.cs" />
+    <Compile Include="IRepository\Project\IOrderRepository.cs" />
+    <Compile Include="IRepository\Project\IProductRepository.cs" />
+    <Compile Include="IRepository\Project\IRecipientRepository.cs" />
+    <Compile Include="ViewModel\AuthorizeActionModel.cs" />
+    <Compile Include="IRepository\SystemManage\IAreaRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IItemsDetailRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IItemsRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IModuleButtonRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IModuleRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IOrganizeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IRoleAuthorizeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IRoleRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IUserLogOnRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IUserRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\IDbBackupRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\IFilterIPRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\ILogRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entity\SystemManage\ItemsEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entity\SystemManage\OrganizeEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entity\SystemManage\RoleEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entity\SystemManage\UserEntity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Finix.Code\Finix.Code.csproj">
+      <Project>{db19ce03-c307-43fe-a209-08aa4ae10e21}</Project>
+      <Name>Finix.Code</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Finix.Data\Finix.Data.csproj">
+      <Project>{f71003e8-a836-48f4-9df6-df9095cebd18}</Project>
+      <Name>Finix.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ReleaseNotes.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

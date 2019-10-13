@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>柱状图</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <link href="~/Content/js/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script src="~/Content/js/datepicker/WdatePicker.js"></script>
+    <style>
+        #btn_search {
+            width: 100px;
+            height: 34px;
+            background: #0f9c80;
+            border-radius: 5px;
+            border: 0px;
+        }
+    </style>
+    <script>
+        $(function () {
+            var datetime = new Date();
+            $("#beginTime").val(datetime.getFullYear() + "-01-01");
+            $("#endTime").val(datetime.getFullYear() + "-12-31");
+            loadData();
+        });
+
+        function setChartData(data) {
+            $('#container').highcharts({
+                chart: {
+                    type: 'column',
+                    zoomType: 'x'
+                },
+                title: {
+                    text: '财务款项统计'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: data.financialData.labels
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '金额 (￥)'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span>{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: data.financialData.data
+            });
+        }
+
+        function loadData() {
+            $.ajax({
+                url: "/Highcharts/FinancialSummary",
+                type: "get",
+                dataType: "json",
+                data: { beginTime: $("#beginTime").val(), endTime: $("#endTime").val() },
+                async: false,
+                success: function (data) {
+                    setChartData(data);
+                }
+            });
+        }
+        function refreshData() {
+            loadData();
+        }
+
+    </script>
+</head>
+<body>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <span>开始日期：</span>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="beginTime" name="beginTime" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd', minDate: '2019-01-01', maxDate: '#F{$dp.$D(\'endTime\')}' })" />
+                    </div>
+                </td>
+                <td>
+                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;结束日期：</span>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="endTime" name="endTime" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd', minDate: '#F{$dp.$D(\'beginTime\')}', maxDate: '2025-12-31' })" />
+                    </div>
+                </td>
+                <td>
+                    <input id="btn_search" type="button" value="Search" onclick="refreshData()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="container" style="min-width: 310px; height: 600px; margin: 0 auto"></div>
+</body>
+</html>

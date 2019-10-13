@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/ProjectManage/Orderpayment/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+        $("#P_OrderId").change(function () {
+            debugger;
+            var selectOption = $(this).children('option:selected');
+            $("#P_CustomerId").val(selectOption.attr("customerCode"));
+            $("#P_ProductId").val(selectOption.attr("productName"));
+            $("#P_DrawingNoOrModelNo").val(selectOption.attr("draw"));
+            $("#P_DeliveryDate").val(selectOption.attr("deliveryDate"));
+            $("#P_OrdreNumber").val(selectOption.attr("num"));
+            $("#P_OrderPrice").val(selectOption.attr("orderPrice"));
+            $("#P_OrderAmount").val(selectOption.attr("orderAmount"));
+            $("#P_OrderStatus").val(selectOption.attr("orderStatus"));
+        });
+    });
+    function initControl() {
+        $("#P_OrderId").bindSelect({
+            url: "/ProjectManage/Orderpayment/GetPaymentOrders"
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/ProjectManage/Orderpayment/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">订单编号</th>
+                    <td class="formValue">
+                        <select id="P_OrderId" name="P_OrderId" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">客户代码</th>
+                    <td class="formValue">
+                        <input id="P_CustomerId" name="P_CustomerId" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <th class="formTitle">产品</th>
+                    <td class="formValue">
+                        <input id="P_ProductId" name="P_ProductId" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                    <th class="formTitle">规格/型号</th>
+                    <td class="formValue">
+                        <input id="P_DrawingNoOrModelNo" name="P_DrawingNoOrModelNo" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">交货日期</th>
+                    <td class="formValue">
+                        <input id="P_DeliveryDate" name="P_DeliveryDate" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                    <th class="formTitle">订单数量</th>
+                    <td class="formValue">
+                        <input id="P_OrdreNumber" name="P_OrdreNumber" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">订单单价</th>
+                    <td class="formValue">
+                        <input id="P_OrderPrice" name="P_OrderPrice" type="text" class="form-control" readonly="readonly"/>
+                    </td>
+                    <th class="formTitle">订单金额</th>
+                    <td class="formValue">
+                        <input id="P_OrderAmount" name="P_OrderAmount" type="text" class="form-control" readonly="readonly"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">付款金额</th>
+                    <td class="formValue">
+                        <input id="P_Amount" name="P_Amount" type="text" class="form-control required" />
+                    </td>
+                    <th class="formTitle">订单状态</th>
+                    <td class="formValue">
+                        <input id="P_OrderStatus" name="P_OrderStatus" type="text" class="form-control required" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">
+                        备注
+                    </th>
+                    <td class="formValue">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

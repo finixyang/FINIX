@@ -1,0 +1,213 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProjectManage/Order/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '订单编号', name: 'P_OrderCode', width: 120, align: 'left' },
+                {
+                    label: '客户编码', name: 'P_CustomerId', width: 200, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.customerItems[cellvalue] == null ? "" : top.clients.customerItems[cellvalue].customerCode;
+                    }
+                },
+                {
+                    label: '产品名称', name: 'P_ProductId', width: 200, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.productItems[cellvalue] == null ? "" : top.clients.productItems[cellvalue].productInfo;
+                    }
+                },
+                {
+                    label: '图号/型号', name: 'P_ProductId', width: 150, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.productItems[cellvalue] == null ? "" : top.clients.productItems[cellvalue].productNo;
+                    }
+                },
+                {
+                    label: '下单日期', name: 'P_OrderDate', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '交货日期', name: 'P_DeliveryDate', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '订单数量', name: 'P_OrdreNumber', width: 80, align: 'center'
+                },
+                { label: '单位', name: 'P_OrderUnit', width: 60, align: 'center' },
+                { label: '单价', name: 'P_OrderPrice', width: 80, align: 'center' },
+                { label: '总价', name: 'P_TotalAmount', width: 80, align: 'center' },
+                {
+                    label: '签单人', name: 'F_CreatorUserId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].userName;
+                    }
+                },
+                {
+                    label: '执行人', name: 'P_OrderOwner', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].userName;
+                    }
+                },
+                {
+                    label: '订单状态', name: 'P_OrderStatus', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.orderFlows[cellvalue] == null ? "" : top.clients.orderFlows[cellvalue].itemName;
+                    }
+                },
+                {
+                    label: '是否外协', name: 'P_IsOutsourcing', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) {
+                            return '<span class=\"label label-success\">是</span>';
+                        } else if (cellvalue == 0) {
+                            return '<span class=\"label label-default\">否</span>';
+                        }
+                    }
+                }
+
+                
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增订单",
+            url: "/ProjectManage/Order/Create",
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (!keyValue || keyValue.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        if (holdBack(keyValue)) {
+            $.modalMsg("此纪录您没有操作权限，请重新选择！", "error");
+            return;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: "修改订单",
+            url: "/ProjectManage/Order/Form?keyValue=" + keyValue,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (!keyValue || keyValue.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        if (holdBack(keyValue)) {
+            $.modalMsg("此纪录您没有操作权限，请重新选择！", "error");
+            return;
+        }
+        $.deleteForm({
+            url: "/ProjectManage/Order/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (!keyValue || keyValue.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        $.modalOpen({
+            id: "Details",
+            title: "查看订单",
+            url: "/ProjectManage/Order/Details?keyValue=" + keyValue,
+            width: "700px",
+            height: "550px",
+            btn: null,
+        });
+    }
+
+    function holdBack(id) {
+        var isHoldBack = false;
+        $.ajax({
+            url: "/ProjectManage/Order/IsHoldBack",
+            data: { orderId: id },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                debugger
+                if (data && data.isHoldBack) {
+                    isHoldBack = data.isHoldBack;
+                }
+            }
+        });
+        return isHoldBack;
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="yf-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建订单</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="yf-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改订单</a></li>
+                <li><a id="yf-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除订单</a></li>
+                <li><a id="yf-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看订单</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="订单编号" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/FlowManage/Financial/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '财务', name: 'P_FinancialId', hidden: true },
+                { label: '流程', name: 'P_FlowStatus', hidden: true },
+                { label: '项目描述', name: 'P_Description', width: 200, align: 'left' },
+                { label: '项目金额', name: 'P_TotalAmount', width: 80, align: 'center' },
+                {
+                    label: '类型', name: 'P_FinancialType', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "B") {
+                            return '<span class=\"label label-success\">报销</span>';
+                        } else if (cellvalue == "H") {
+                            return '<span class=\"label label-default\">入账</span>';
+                        } else {
+                            return '';
+                        }
+                    }
+                },
+                {
+                    label: '申请日期', name: 'F_CreatorTime', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '申请人', name: 'F_CreatorUserId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].userName;
+                    }
+                },
+                {
+                    label: '申请状态', name: 'P_FinancialStatus', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.financialFlows[cellvalue] == null ? "" : top.clients.financialFlows[cellvalue].itemName;
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: true
+        });
+
+        $("#notOverYet").click(function () {
+            reloadGrid();
+        });
+        $("#hasEnded").click(function () {
+            reloadGrid();
+        });
+
+        function reloadGrid() {
+            var orderStatus = $("input[name='financialStatus']:checked").val();
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: orderStatus },
+            }).trigger('reloadGrid');
+        }
+    }
+    function btn_edit() {
+        var status = $("input[name='financialStatus']:checked").val();
+        if (status == "1") {
+            $.modalMsg("已经结束的流程不运行编辑！", "error");
+            return;
+        }
+        var grid = $("#gridList").jqGridRowValue();
+        var keyValue = grid.P_FinancialId;
+        var flowId = grid.P_FlowStatus;
+        var financialFlowId = grid.F_Id;
+        var url = "";
+        url = "/FlowManage/FinancialInspection/Create";
+        $.modalOpen({
+            id: "Form",
+            title: "流程提交",
+            url: url + "?keyValue=" + keyValue + "&flowId=" + flowId + "&financialFlowId=" + financialFlowId,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().P_FinancialId;
+        if (!keyValue || keyValue.length < 1) {
+            $.modalMsg("请选择一条记录！", "error");
+            return;
+        }
+        $.modalOpen({
+            id: "Details",
+            title: "查看流程",
+            url: "/FlowManage/Financial/Details?keyValue=" + keyValue,
+            width: "700px",
+            height: "550px",
+            btn: null,
+        });
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="yf-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>报账提交</a></li>
+                <li><a id="yf-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看报账</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <label class="radio-inline">
+                        <input type="radio" name="financialStatus" id="notOverYet" value="0" checked> 未结束
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="financialStatus" id="hasEnded" value="1"> 已结束
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
