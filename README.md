@@ -1,0 +1,2 @@
+# FINIX
+Inventory management system
